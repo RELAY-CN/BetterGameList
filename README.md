@@ -1,2 +1,10 @@
-# BetterGameList
-Fighting advertising with advanced AI anti-cheat technology and the IronCore foundation.
+# 更好的游戏列表
+
+通过 RELAY-CN 自有资源，在保障 RELAY-CN 稳定运行的同时，面向大众提供反广告游戏列表。  
+兼容原版《铁锈战争》API 逻辑，仅在内部审核环节引入 API 与 IronCore 启发式扫描机制。  
+
+AI 审核词库将公开并持续迭代优化。  
+
+我们立足玩家群体，期待与您携手共建。
+
+RELAY-CN. 2026
