@@ -15,4 +15,5 @@ AI 审核词库将公开并持续迭代优化。
 
 我们立足玩家群体，期待与您携手共建。
 
-RELAY-CN. 2026
+RELAY-CN Team. 2026
+- 由 `NebulaPause.Group` 群组提供设想
