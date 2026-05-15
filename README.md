@@ -57,6 +57,16 @@ https://list.rw.der.kim/gs1/masterserver/1.4/interface?action=list&game_version=
 - 如果反广告 API 正常返回，不再请求官方 API
 ```
 
+如果客户端不便实现回退逻辑，也可以额外接入一个 `AD Server` 列表接口，用于获取广告房间列表：
+
+```text
+https://list.rw.der.kim/masterserver/1.4/adinterface?action=list
+```
+
+该接口当前只支持 `action=list`。
+
+可在客户端 Hook 的列表数据处理阶段额外获取此接口数据，再与官方列表结果做异或处理，从而得到无广告列表数据。
+
 ## 协议入口
 
 主接口：
