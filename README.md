@@ -18,6 +18,12 @@ AI 审核词库将公开并持续迭代优化。
 
 我们立足玩家群体，期待与您携手共建。
 
+## 文件说明
+
+- `AI_PromptFilter.txt`：AI 屏蔽提示词，用于约束 AI 审核时的判定规则与拦截范围。
+- `ExamplesOfAdNames.txt`：附加的 AI 参考词，提供典型广告/引流名称样例，辅助 AI 识别相似文本。
+- `IP_Whitelist.ini`：IP 白名单配置文件，当前版本暂未生效。
+
 ## 如何对接
 
 反广告 API 与原版 MasterServer API 保持一致，可直接作为主列表源接入：
