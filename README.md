@@ -29,14 +29,14 @@ AI 审核词库将公开并持续迭代优化。
 反广告 API 与原版 MasterServer API 保持一致，可直接作为主列表源接入：
 
 ```text
-https://list.rw.der.kim/gs1/masterserver/1.4/interface
+https://list.rw.der.kim/masterserver/1.4/interface
 ```
 
 推荐将反广告 API 作为主 API，在不可用时回退官方 API：
 
 ```text
 主 API：
-https://list.rw.der.kim/gs1/masterserver/1.4/interface
+https://list.rw.der.kim/masterserver/1.4/interface
 
 官方 API：
 https://gs1.corrodinggames.com/masterserver/1.4/interface
@@ -46,7 +46,7 @@ https://gs4.corrodinggames.net/masterserver/1.4/interface
 客户端请求参数不需要改，仍然使用原版参数：
 
 ```text
-https://list.rw.der.kim/gs1/masterserver/1.4/interface?action=list&game_version=176&game_version_beta=false
+https://list.rw.der.kim/masterserver/1.4/interface?action=list&game_version=176&game_version_beta=false
 ```
 
 推荐回退逻辑：
