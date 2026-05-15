@@ -36,8 +36,9 @@ https://list.rw.der.kim/gs1/masterserver/1.4/interface
 主 API：
 https://list.rw.der.kim/gs1/masterserver/1.4/interface
 
-备用 API：
+官方 API：
 https://gs1.corrodinggames.com/masterserver/1.4/interface
+https://gs4.corrodinggames.net/masterserver/1.4/interface
 ```
 
 客户端请求参数不需要改，仍然使用原版参数：
