@@ -18,10 +18,6 @@ AI 审核词库将公开并持续迭代优化。
 
 我们立足玩家群体，期待与您携手共建。
 
-RELAY-CN Team. 2026
-
-- 由 `NebulaPause.Group` 群组提供设想
-
 ## 如何对接
 
 反广告 API 与原版 MasterServer API 保持一致，可直接作为主列表源接入：
@@ -141,4 +137,8 @@ AI 只需要返回允许公开的 UUID 列表，例如：
 
 `private_token` 等鉴权字段不做协议文本清洗，避免影响认证。
 
-调试接口不建议长期暴露在公网。
+# 鸣谢
+`RELAY-CN Team` 2026  
+`NebulaPause.Group 群友`  
+`使用API的你 我 他`  
+`与屏幕前的你`  
