@@ -69,11 +69,19 @@ https://list.rw.der.kim/masterserver/1.4/adinterface?action=list
 
 ## 服务状态
 
-可通过状态页查看最近一小时的上游拉取、官方房间、广告过滤与正常放行趋势：
+可通过状态页查看最近 24 小时的上游拉取、官方房间、广告过滤与正常放行趋势：
 
 ```text
 https://list.rw.der.kim/masterserver/1.4/server
 ```
+
+状态页前端会按需请求 JSON 数据接口，避免 24 小时数据量变大时把所有统计直接塞进 HTML：
+
+```text
+https://list.rw.der.kim/masterserver/1.4/server_api.php?granularity=5
+```
+
+`granularity` 支持 `1`、`5`、`10`，分别表示每次、每 5 次、每 10 次同步为一个趋势点。
 
 ## 协议入口
 
