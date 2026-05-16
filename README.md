@@ -67,6 +67,14 @@ https://list.rw.der.kim/masterserver/1.4/adinterface?action=list
 
 可在客户端 Hook 的列表数据处理阶段额外获取此接口数据，再与官方列表结果做异或处理，从而得到无广告列表数据。
 
+## 服务状态
+
+可通过状态页查看最近一小时的上游拉取、官方房间、广告过滤与正常放行趋势：
+
+```text
+https://list.rw.der.kim/masterserver/1.4/server
+```
+
 ## 协议入口
 
 主接口：
@@ -98,7 +106,7 @@ OK
 
 ## 上游同步
 
-每 30-45 秒 会执行一次上游同步 (我们认为这是在防止对上游造成压力和满足下游的大概的实时)：
+每 30-45 秒会执行一次上游同步。该间隔用于降低上游压力，同时满足下游列表的大致实时性：
 
 同步规则：
 
@@ -113,7 +121,7 @@ OK
 
 - 官方房间：保留上游 IP、端口和原 `address_version`。
 - 非官方普通 IP 房间：
-  - `action=list` 中 `public_ip` 返回 `0.0.0.0`
+  - `action=list` 中 `public_ip` 返回占位地址 `1.1.1.1`
   - `address_version` 强制大于 0，让客户端走 `action=get`
   - `action=get` 返回缓存或实时获取到的真实 IP/端口
 - URL 房间保持上游原样。
@@ -125,7 +133,7 @@ OK
 AI 输入是一批房间摘要，每行包含：
 
 ```text
-uuid    玩家名    地图名    当前人数    最大人数    版本号
+uuid    game_name    created_by    game_map    game_status    current_players    max_players    version_name    password_required
 ```
 
 AI 只需要返回允许公开的 UUID 列表，例如：
@@ -137,7 +145,7 @@ AI 只需要返回允许公开的 UUID 列表，例如：
 当前 AI 客户端配置：
 
 - 每批默认 60 条。
-- 默认 2 个批次并发。
+- 默认 4 个批次并发。
 - 任意批次失败，本轮 AI 过滤失败。
 - AI 失败时不更新公开表。
 
@@ -149,12 +157,19 @@ AI 只需要返回允许公开的 UUID 列表，例如：
 
 - 英文逗号 `,` 替换为中文逗号 `，`
 - `\r`、`\n`、`\t` 替换为空格
-- 控制字符只保留 `\x01`，其他控制字符替换为空格
+- `\x01` / `\u0001` 等不可见控制字符会被过滤
+- 零宽字符、Bidi 控制符、BOM 等不可见 Unicode 字符会被过滤
+- 普通空格会保留，因为它是可见字符
 
 `private_token` 等鉴权字段不做协议文本清洗，避免影响认证。
 
+公开表中的历史数据也会在上游同步时顺带清理不可见字符，避免旧房间继续携带排序前缀。
+
 # 鸣谢
-`RELAY-CN Team` 2026  
-`NebulaPause.Group 群友`  
-`使用API的你 我 他`  
-`与屏幕前的你`  
+
+- RELAY-CN 团队  
+- NebulaPause.Group 群友  
+- 幻想天域  
+- 隔离区  
+
+使用API的你 我 他 与屏幕前的你  
