@@ -58,7 +58,6 @@ https://list.rw.der.kim/masterserver/1.4/interface?action=list&game_version=176&
 ```
 
 如果客户端不便实现回退逻辑，也可以额外接入一个 `AD Server` 列表接口，用于获取广告房间列表：
-[Change.md](Change.md)
 ```text
 https://list.rw.der.kim/masterserver/1.4/adinterface?action=list
 ```
