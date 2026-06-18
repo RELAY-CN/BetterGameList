@@ -22,7 +22,7 @@ AI 审核词库将公开并持续迭代优化。
 
 - `AI_PromptFilter.txt`：AI 屏蔽提示词，用于约束 AI 审核时的判定规则与拦截范围。
 - `ExamplesOfAdNames.txt`：附加的 AI 参考词，提供典型广告/引流名称样例，辅助 AI 识别相似文本。
-- `IP_Whitelist.ini`：IP 白名单配置文件，当前版本暂未生效。
+- `IP_Whitelist.ini`：IP 白名单配置文件。服务默认从 `https://cdn.jsdmirror.com/gh//RELAY-CN/BetterGameList@latest/IP_Whitelist.ini` 拉取，并按提示词相同缓存时间缓存；同步阶段获取到真实连接 IP 后，命中白名单的房间会直接放行，不进入 AI 过滤。
 
 ## 如何对接
 
@@ -118,7 +118,10 @@ OK
 同步规则：
 
 - 官方房间直接写入。
-- 非官方房间交给 AI 审核。
+- 非官方房间会优先按 UUID 复用已缓存的真实 IP；未缓存时再请求上游 `action=get`。
+- IP 白名单默认从 CDN URL 读取，缓存时间与 `AI_PromptFilter.txt`、`ExamplesOfAdNames.txt` 相同；缓存过期后才重新获取。
+- 非官方房间真实 IP 命中 `IP_Whitelist.ini` 时直接视为正常房间，不进入 AI 过滤。
+- 未命中 IP 白名单的非官方房间交给 AI 审核。
 - AI 全部批次成功后，原子更新公开表。
 - AI 失败、上游失败或返回异常时，不发布本轮结果，保留旧数据。
 
@@ -133,7 +136,7 @@ OK
   - `action=get` 返回缓存或实时获取到的真实 IP/端口
 - URL 房间保持上游原样。
 
-如果同一个上游 UUID 已经缓存过真实 IP/端口，下次同步会复用缓存，不重复请求上游 `action=get`。
+如果同一个上游 UUID 已经缓存过真实 IP/端口，下次同步会复用缓存，不重复请求上游 `action=get`。缓存会覆盖已发布的正常房间和已识别的广告房间，用于避免同 UUID 反复解析连接信息。
 
 ## AI 过滤
 
@@ -151,12 +154,13 @@ AI 只需要返回允许公开的 UUID 列表，例如：
 
 当前 AI 客户端配置：
 
+- 命中 `IP_Whitelist.ini` 的房间不会进入 AI 输入，直接放行。
 - 每批默认 60 条。
 - 默认 4 个批次并发。
 - 任意批次失败，本轮 AI 过滤失败。
 - AI 失败时不更新公开表。
 
-提示词和广告样例会缓存到 `runtime/ai-prompt-cache`，默认缓存 1 小时。缓存命中按固定文件名和文件修改时间判断。
+提示词、广告样例和 IP 白名单会缓存到 `runtime/ai-prompt-cache`，默认缓存 1 小时。缓存命中按固定文件名和文件修改时间判断；IP 白名单拉取失败时会先使用旧缓存，再回退仓库本地 `IP_Whitelist.ini`。
 
 ## 输入清洗
 
