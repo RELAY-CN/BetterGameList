@@ -868,6 +868,12 @@ https://gs4.corrodinggames.net/masterserver/1.4/interface</code></pre>
         }
 
         async function copyText(text, button) {
+            if (!button.dataset.originalText) {
+                button.dataset.originalText = button.textContent;
+            }
+            const restore = () => {
+                button.textContent = button.dataset.originalText;
+            };
             try {
                 if (navigator.clipboard && window.isSecureContext) {
                     await navigator.clipboard.writeText(text);
@@ -882,21 +888,20 @@ https://gs4.corrodinggames.net/masterserver/1.4/interface</code></pre>
                     document.execCommand("copy");
                     document.body.removeChild(input);
                 }
-                if (!button.dataset.originalText) {
-                    button.dataset.originalText = button.textContent;
-                }
                 button.textContent = "已复制";
                 announce("已复制：" + (button.dataset.originalText || ""));
                 if (button.dataset.resetTimer) {
                     window.clearTimeout(Number(button.dataset.resetTimer));
                 }
-                button.dataset.resetTimer = String(window.setTimeout(() => {
-                    button.textContent = button.dataset.originalText;
-                }, 1400));
+                button.dataset.resetTimer = String(window.setTimeout(restore, 1400));
             } catch (error) {
                 button.textContent = "复制失败";
                 announce("复制失败");
                 console.error(error);
+                if (button.dataset.resetTimer) {
+                    window.clearTimeout(Number(button.dataset.resetTimer));
+                }
+                button.dataset.resetTimer = String(window.setTimeout(restore, 1400));
             }
         }
 
