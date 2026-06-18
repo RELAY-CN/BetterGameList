@@ -8,6 +8,18 @@
         name="description"
         content="BetterGameList 是一个兼容原版 Rusted Warfare MasterServer API 的反广告游戏列表服务。"
     >
+    <meta name="theme-color" content="#f4f1ea">
+    <link
+        rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%235d7668'/%3E%3Cpath d='M9 10h14M9 16h14M9 22h9' stroke='%23f8f6f1' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E"
+    >
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="BetterGameList | 更好的游戏列表">
+    <meta
+        property="og:description"
+        content="兼容原版 Rusted Warfare MasterServer API 的反广告游戏列表服务，AI 过滤 + 原子更新。"
+    >
+    <meta property="og:url" content="https://list.rw.der.kim/">
     <style>
         :root {
             --bg: #f4f1ea;
@@ -24,6 +36,18 @@
 
         * {
             box-sizing: border-box;
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
 
         html {
@@ -429,7 +453,11 @@
             }
 
             .nav-links {
-                display: none;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px 14px;
+                margin-top: 6px;
+                font-size: 0.9rem;
             }
 
             .hero {
@@ -603,6 +631,7 @@
     </style>
 </head>
 <body>
+    <span id="copy-status" class="visually-hidden" role="status" aria-live="polite"></span>
     <header class="site-header">
         <div class="container nav">
             <div class="brand"><a href="#overview" style="color: inherit; text-decoration: none;">BetterGameList</a></div>
@@ -830,6 +859,13 @@ https://gs4.corrodinggames.net/masterserver/1.4/interface</code></pre>
 
     <script>
         const copyButtons = document.querySelectorAll("[data-copy]");
+        const copyStatus = document.getElementById("copy-status");
+
+        function announce(message) {
+            if (copyStatus) {
+                copyStatus.textContent = message;
+            }
+        }
 
         async function copyText(text, button) {
             try {
@@ -850,6 +886,7 @@ https://gs4.corrodinggames.net/masterserver/1.4/interface</code></pre>
                     button.dataset.originalText = button.textContent;
                 }
                 button.textContent = "已复制";
+                announce("已复制：" + (button.dataset.originalText || ""));
                 if (button.dataset.resetTimer) {
                     window.clearTimeout(Number(button.dataset.resetTimer));
                 }
@@ -858,6 +895,7 @@ https://gs4.corrodinggames.net/masterserver/1.4/interface</code></pre>
                 }, 1400));
             } catch (error) {
                 button.textContent = "复制失败";
+                announce("复制失败");
                 console.error(error);
             }
         }
