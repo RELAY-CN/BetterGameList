@@ -12,7 +12,7 @@
         :root {
             --bg: #f4f1ea;
             --text: #2c312f;
-            --muted: #66706b;
+            --muted: #5c6661;
             --line: #d6d2c9;
             --line-strong: #bdb7ac;
             --soft: #ebe6dd;
@@ -28,6 +28,13 @@
 
         html {
             scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
         }
 
         body {
@@ -598,7 +605,7 @@
 <body>
     <header class="site-header">
         <div class="container nav">
-            <div class="brand">BetterGameList</div>
+            <div class="brand"><a href="#overview" style="color: inherit; text-decoration: none;">BetterGameList</a></div>
             <nav class="nav-links" aria-label="页面导航">
                 <a href="#overview">概览</a>
                 <a href="#access">接入</a>
@@ -689,7 +696,7 @@ https://gs4.corrodinggames.net/masterserver/1.4/interface</code></pre>
                         <p>客户端请求参数仍然使用原版写法。</p>
                         <pre><code>https://list.rw.der.kim/masterserver/1.4/interface?action=list&amp;game_version=176&amp;game_version_beta=false</code></pre>
                         <div class="endpoint-actions">
-                            <button class="copy-button" type="button" data-copy="https://list.rw.der.kim/masterserver/1.4/interface?action=list&game_version=176&game_version_beta=false">复制示例请求</button>
+                            <button class="copy-button" type="button" data-copy="https://list.rw.der.kim/masterserver/1.4/interface?action=list&amp;game_version=176&amp;game_version_beta=false">复制示例请求</button>
                         </div>
                     </div>
                     <div class="endpoint-block">
@@ -839,11 +846,16 @@ https://gs4.corrodinggames.net/masterserver/1.4/interface</code></pre>
                     document.execCommand("copy");
                     document.body.removeChild(input);
                 }
-                const oldText = button.textContent;
+                if (!button.dataset.originalText) {
+                    button.dataset.originalText = button.textContent;
+                }
                 button.textContent = "已复制";
-                window.setTimeout(() => {
-                    button.textContent = oldText;
-                }, 1400);
+                if (button.dataset.resetTimer) {
+                    window.clearTimeout(Number(button.dataset.resetTimer));
+                }
+                button.dataset.resetTimer = String(window.setTimeout(() => {
+                    button.textContent = button.dataset.originalText;
+                }, 1400));
             } catch (error) {
                 button.textContent = "复制失败";
                 console.error(error);
