@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BetterGameList | 更好的游戏列表</title>
+    <meta
+        name="description"
+        content="BetterGameList 是一个兼容原版 Rusted Warfare MasterServer API 的反广告游戏列表服务。"
+    >
+    <style>
+        :root {
+            --bg: #f4f1ea;
+            --text: #2c312f;
+            --muted: #66706b;
+            --line: #d6d2c9;
+            --line-strong: #bdb7ac;
+            --soft: #ebe6dd;
+            --primary: #5d7668;
+            --primary-soft: #dde6df;
+            --success: #6d7d59;
+            --max-width: 980px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            line-height: 1.7;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        code {
+            font-family: "Cascadia Code", Consolas, monospace;
+            font-size: 0.94em;
+        }
+
+        pre {
+            margin: 0;
+            overflow-x: auto;
+            padding: 14px 16px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--soft);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: min(var(--max-width), calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: rgba(244, 241, 234, 0.92);
+            border-bottom: 1px solid rgba(216, 222, 228, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            min-height: 64px;
+        }
+
+        .brand {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .hero {
+            padding: 56px 0 36px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        h1,
+        h2,
+        h3,
+        p {
+            margin: 0;
+        }
+
+        h1 {
+            margin-top: 18px;
+            font-size: clamp(2.1rem, 5vw, 3.6rem);
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+        }
+
+        .hero-lead {
+            margin-top: 18px;
+            max-width: 760px;
+            color: var(--muted);
+            font-size: 1.06rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+            padding: 0 14px;
+            border-radius: 8px;
+            border: 1px solid var(--line-strong);
+            background: rgba(255, 255, 255, 0.48);
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            background: var(--soft);
+            text-decoration: none;
+        }
+
+        .button-primary {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #f8f6f1;
+        }
+
+        .button-primary:hover {
+            background: #556d60;
+        }
+
+        .hero-meta {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 34px;
+            padding-top: 22px;
+            border-top: 1px solid var(--line);
+        }
+
+        .meta-item strong {
+            display: block;
+            font-size: 0.92rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .meta-item span {
+            display: block;
+            margin-top: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .meta-item {
+            min-width: 0;
+        }
+
+        .section {
+            padding: 34px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .section:last-of-type {
+            border-bottom: 0;
+        }
+
+        .section-heading {
+            margin-bottom: 18px;
+        }
+
+        .section-heading h2 {
+            font-size: clamp(1.45rem, 3vw, 2rem);
+            letter-spacing: -0.02em;
+        }
+
+        .section-heading p {
+            margin-top: 8px;
+            max-width: 760px;
+            color: var(--muted);
+        }
+
+        .summary-list,
+        .protocol-list,
+        .status-list {
+            margin: 0;
+            padding-left: 20px;
+            color: var(--muted);
+        }
+
+        .summary-list li + li,
+        .protocol-list li + li,
+        .status-list li + li {
+            margin-top: 8px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+            gap: 28px;
+            align-items: start;
+        }
+
+        .aside-note {
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.34);
+        }
+
+        .aside-note strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .workflow {
+            display: grid;
+            gap: 16px;
+        }
+
+        .workflow-step {
+            display: grid;
+            grid-template-columns: 32px minmax(0, 1fr);
+            gap: 14px;
+        }
+
+        .workflow-index {
+            color: var(--muted);
+            font-size: 0.92rem;
+            font-weight: 700;
+            line-height: 1.8;
+        }
+
+        .workflow-step h3 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .workflow-step p {
+            color: var(--muted);
+        }
+
+        .endpoint-group {
+            display: grid;
+            gap: 18px;
+        }
+
+        .endpoint-block {
+            padding: 18px 0;
+            border-top: 1px solid var(--line);
+        }
+
+        .endpoint-block:first-child {
+            border-top: 0;
+            padding-top: 0;
+        }
+
+        .endpoint-block h3 {
+            font-size: 1rem;
+        }
+
+        .endpoint-block p {
+            margin-top: 6px;
+            color: var(--muted);
+        }
+
+        .endpoint-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .copy-button {
+            min-height: 36px;
+            padding: 0 12px;
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.44);
+            color: var(--text);
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .copy-button:hover {
+            background: var(--soft);
+        }
+
+        .inline-code {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: var(--soft);
+            border: 1px solid var(--line);
+            color: var(--text);
+        }
+
+        .footer {
+            padding: 30px 0 42px;
+        }
+
+        .footer-inner {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 16px;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        @media (max-width: 980px) {
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .site-header {
+                position: static;
+            }
+
+            .hero {
+                padding: 36px 0 24px;
+            }
+
+            .hero-actions,
+            .endpoint-actions {
+                flex-direction: column;
+                align-items: stretch;
+                max-width: 320px;
+            }
+
+            .button,
+            .copy-button {
+                width: 100%;
+                min-height: 44px;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 720px) {
+            body {
+                line-height: 1.68;
+                background: #f7f4ee;
+            }
+
+            .container {
+                width: min(var(--max-width), calc(100% - 20px));
+            }
+
+            .site-header {
+                border-bottom: 0;
+                background: transparent;
+                backdrop-filter: none;
+            }
+
+            .nav {
+                min-height: auto;
+                padding: 10px 0 0;
+                display: block;
+            }
+
+            .brand {
+                font-size: 0.94rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 20px 0 18px;
+                border-bottom: 0;
+            }
+
+            .eyebrow {
+                font-size: 0.76rem;
+            }
+
+            h1 {
+                margin-top: 12px;
+                font-size: clamp(1.64rem, 7vw, 2rem);
+                line-height: 1.24;
+                letter-spacing: -0.02em;
+            }
+
+            .hero-lead {
+                margin-top: 12px;
+                font-size: 0.95rem;
+            }
+
+            .hero-actions {
+                max-width: none;
+                gap: 10px;
+                margin-top: 16px;
+            }
+
+            .hero-meta {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                margin-top: 18px;
+                padding-top: 14px;
+            }
+
+            .meta-item {
+                padding-bottom: 10px;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .meta-item:last-child {
+                padding-bottom: 0;
+                border-bottom: 0;
+            }
+
+            .meta-item strong {
+                font-size: 0.84rem;
+            }
+
+            .meta-item span {
+                margin-top: 4px;
+                font-size: 0.94rem;
+            }
+
+            .section {
+                padding: 20px 0;
+                border-bottom: 0;
+            }
+
+            .section-heading {
+                margin-bottom: 12px;
+            }
+
+            .section-heading h2 {
+                font-size: 1.28rem;
+            }
+
+            .section-heading p {
+                margin-top: 6px;
+                font-size: 0.94rem;
+            }
+
+            .summary-list,
+            .protocol-list,
+            .status-list {
+                padding-left: 18px;
+                font-size: 0.94rem;
+            }
+
+            .aside-note {
+                padding: 10px 12px;
+                margin-top: 4px;
+                background: rgba(255, 255, 255, 0.46);
+                border-radius: 7px;
+                font-size: 0.93rem;
+            }
+
+            .workflow {
+                gap: 12px;
+            }
+
+            .workflow-step {
+                grid-template-columns: 24px minmax(0, 1fr);
+                gap: 10px;
+            }
+
+            .workflow-index {
+                font-size: 0.84rem;
+                line-height: 1.7;
+            }
+
+            .workflow-step h3,
+            .endpoint-block h3 {
+                font-size: 0.98rem;
+            }
+
+            .workflow-step p,
+            .endpoint-block p {
+                font-size: 0.94rem;
+            }
+
+            .endpoint-group {
+                gap: 0;
+            }
+
+            .endpoint-block {
+                padding: 12px 0;
+                border-top-color: rgba(214, 210, 201, 0.72);
+            }
+
+            .endpoint-actions {
+                max-width: none;
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+            }
+
+            pre {
+                padding: 10px 12px;
+                font-size: 0.82rem;
+                border-radius: 7px;
+                background: rgba(255, 255, 255, 0.42);
+            }
+
+            pre code {
+                white-space: pre-wrap;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+
+            .inline-code {
+                margin-top: 8px;
+                font-size: 0.88rem;
+            }
+
+            .endpoint-actions .button,
+            .endpoint-actions .copy-button {
+                width: auto;
+                min-height: 34px;
+                padding: 0 10px;
+                font-size: 0.88rem;
+            }
+
+            .footer {
+                padding: 18px 0 28px;
+            }
+
+            .footer-inner,
+            .footer-links {
+                gap: 8px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container nav">
+            <div class="brand">BetterGameList</div>
+            <nav class="nav-links" aria-label="页面导航">
+                <a href="#overview">概览</a>
+                <a href="#access">接入</a>
+                <a href="#workflow">原理</a>
+                <a href="#status">状态</a>
+                <a href="#protocol">协议</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <span class="eyebrow">Rusted Warfare 反广告列表服务</span>
+                <h1>更干净的公开房间列表，尽量保持原版接入方式不变</h1>
+                <p class="hero-lead">
+                    BetterGameList 依托 RELAY-CN 自有资源运行，在保障服务稳定性的前提下，
+                    通过 AI 审核、原子发布和失败保留旧结果等机制，为玩家提供更适合长期接入的公开列表源。
+                </p>
+                <div class="hero-actions">
+                    <a class="button button-primary" href="#access">查看接入方式</a>
+                    <a class="button" href="https://github.com/RELAY-CN/BetterGameList/blob/main/README.md">阅读 README</a>
+                </div>
+                <div class="hero-meta">
+                    <div class="meta-item">
+                        <strong>兼容协议</strong>
+                        <span>MasterServer 1.4 Interface</span>
+                    </div>
+                    <div class="meta-item">
+                        <strong>同步周期</strong>
+                        <span>每 30 - 45 秒</span>
+                    </div>
+                    <div class="meta-item">
+                        <strong>核心策略</strong>
+                        <span>AI 过滤 + 原子更新</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="overview" class="section">
+            <div class="container two-column">
+                <div>
+                    <div class="section-heading">
+                        <h2>项目概览</h2>
+                        <p>这个项目不是重做一套新协议，而是在兼容原版接口逻辑的前提下，提供一个更适合作为主列表源的反广告服务。</p>
+                    </div>
+                    <ul class="summary-list">
+                        <li>与原版 <code>masterserver/1.4/interface</code> API 逻辑兼容，客户端通常只需替换列表地址。</li>
+                        <li>对非官方房间引入 AI 审核能力，并保留继续接入启发式扫描的设计空间。</li>
+                        <li>上游、AI 或数据库任一关键步骤失败时，保留上一版公开列表，不发布不完整结果。</li>
+                        <li>提供状态页与趋势接口，便于观察最近 24 小时的同步与过滤情况。</li>
+                    </ul>
+                </div>
+                <aside class="aside-note">
+                    <strong>说明</strong>
+                    <p>这个页面是 README 的简化介绍版，更适合仓库首页展示或作为 GitHub Pages 静态落地页。</p>
+                </aside>
+            </div>
+        </section>
+
+        <section id="access" class="section">
+            <div class="container">
+                <div class="section-heading">
+                    <h2>接入方式</h2>
+                    <p>推荐把 BetterGameList 作为主 API，在不可用时回退官方 API。客户端请求参数可以保持原样。</p>
+                </div>
+                <div class="endpoint-group">
+                    <div class="endpoint-block">
+                        <h3>主 API</h3>
+                        <p>反广告公开列表接口，可直接作为主列表源接入。</p>
+                        <pre><code>https://list.rw.der.kim/masterserver/1.4/interface</code></pre>
+                        <div class="endpoint-actions">
+                            <button class="copy-button" type="button" data-copy="https://list.rw.der.kim/masterserver/1.4/interface">复制主 API</button>
+                        </div>
+                    </div>
+                    <div class="endpoint-block">
+                        <h3>官方 API 回退链路</h3>
+                        <p>当主 API 超时、网络失败或响应头不是 <code>CORRODINGGAMES[1.0]</code> 时，再尝试官方接口。</p>
+                        <pre><code>https://gs1.corrodinggames.com/masterserver/1.4/interface
+https://gs4.corrodinggames.net/masterserver/1.4/interface</code></pre>
+                        <div class="endpoint-actions">
+                            <button class="copy-button" type="button" data-copy="https://gs1.corrodinggames.com/masterserver/1.4/interface&#10;https://gs4.corrodinggames.net/masterserver/1.4/interface">复制回退 API</button>
+                        </div>
+                    </div>
+                    <div class="endpoint-block">
+                        <h3>请求示例</h3>
+                        <p>客户端请求参数仍然使用原版写法。</p>
+                        <pre><code>https://list.rw.der.kim/masterserver/1.4/interface?action=list&amp;game_version=176&amp;game_version_beta=false</code></pre>
+                        <div class="endpoint-actions">
+                            <button class="copy-button" type="button" data-copy="https://list.rw.der.kim/masterserver/1.4/interface?action=list&game_version=176&game_version_beta=false">复制示例请求</button>
+                        </div>
+                    </div>
+                    <div class="endpoint-block">
+                        <h3>补充接口</h3>
+                        <p>如果客户端不便实现回退逻辑，也可以额外接入广告房间列表接口，再结合官方列表做异或处理。</p>
+                        <pre><code>https://list.rw.der.kim/masterserver/1.4/adinterface?action=list</code></pre>
+                        <div class="endpoint-actions">
+                            <a class="button" href="https://github.com/RELAY-CN/BetterGameList/blob/main/Change.md">查看 Change.md</a>
+                            <button class="copy-button" type="button" data-copy="https://list.rw.der.kim/masterserver/1.4/adinterface?action=list">复制 AD Server 接口</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="workflow" class="section">
+            <div class="container two-column">
+                <div>
+                    <div class="section-heading">
+                        <h2>工作原理</h2>
+                        <p>整个流程围绕“尽量不过早发布新结果”来设计，优先保证对外公开列表的稳定性和一致性。</p>
+                    </div>
+                    <div class="workflow">
+                        <div class="workflow-step">
+                            <div class="workflow-index">01</div>
+                            <div>
+                                <h3>周期拉取上游列表</h3>
+                                <p>服务每 30 到 45 秒拉取一次上游房间列表，兼顾实时性与上游压力。</p>
+                            </div>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="workflow-index">02</div>
+                            <div>
+                                <h3>官方房间直通，非官方房间进入审核链路</h3>
+                                <p>非官方房间会进入额外的 AI 过滤流程，避免把明显广告房间直接暴露到公开列表。</p>
+                            </div>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="workflow-index">03</div>
+                            <div>
+                                <h3>AI 批量审核房间摘要</h3>
+                                <p>AI 返回允许公开的 UUID 列表。任一批次失败，本轮审核直接判定失败。</p>
+                            </div>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="workflow-index">04</div>
+                            <div>
+                                <h3>全部成功后原子更新公开表</h3>
+                                <p>只有关键步骤全部成功时，新的公开列表才会一次性替换旧结果。</p>
+                            </div>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="workflow-index">05</div>
+                            <div>
+                                <h3>异常时保留旧结果</h3>
+                                <p>上游失败、AI 失败或数据库异常时，本轮结果不会对外发布。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <aside class="aside-note">
+                    <strong>当前 AI 配置</strong>
+                    <p>默认每批 60 条、4 个批次并发。任意批次失败，本轮 AI 过滤失败。</p>
+                    <span class="inline-code">AI 输出仅需返回允许公开的 UUID 数组</span>
+                </aside>
+            </div>
+        </section>
+
+        <section id="status" class="section">
+            <div class="container two-column">
+                <div>
+                    <div class="section-heading">
+                        <h2>服务状态</h2>
+                        <p>项目提供状态页和 JSON 趋势接口，用于查看最近 24 小时的同步、过滤与放行趋势。</p>
+                    </div>
+                    <pre><code>https://list.rw.der.kim/masterserver/1.4/server</code></pre>
+                    <div class="endpoint-actions">
+                        <a class="button" href="https://list.rw.der.kim/masterserver/1.4/server">打开状态页</a>
+                    </div>
+                    <p style="margin-top: 18px; color: var(--muted);">
+                        状态页前端会按需请求 JSON 数据接口，避免数据量增长后把全部统计直接塞进 HTML。
+                    </p>
+                    <pre style="margin-top: 14px;"><code>https://list.rw.der.kim/masterserver/1.4/server_api.php?granularity=5</code></pre>
+                </div>
+                <aside class="aside-note">
+                    <strong>granularity 参数</strong>
+                    <ul class="status-list">
+                        <li><code>1</code> 表示每次同步都记录一个趋势点。</li>
+                        <li><code>5</code> 表示每 5 次同步聚合一个趋势点。</li>
+                        <li><code>10</code> 表示每 10 次同步聚合一个趋势点。</li>
+                    </ul>
+                </aside>
+            </div>
+        </section>
+
+        <section id="protocol" class="section">
+            <div class="container two-column">
+                <div>
+                    <div class="section-heading">
+                        <h2>协议能力</h2>
+                        <p>除了公开列表本身，项目还保留了常见 action 语义，并对连接字段策略和输入清洗做了补充处理。</p>
+                    </div>
+                    <ul class="protocol-list">
+                        <li><code>action=list</code> 返回公开房间列表。</li>
+                        <li><code>action=add</code> 创建房间并写入 <code>room_buffer</code>。</li>
+                        <li><code>action=update</code> 更新房间，但不会立即进入公开表。</li>
+                        <li><code>action=remove</code> 通过 <code>id + private_token</code> 删除房间。</li>
+                        <li><code>action=get</code> 获取真实连接 IP 与端口。</li>
+                        <li><code>action=self_info</code> 返回当前请求 IP 和端口开放状态。</li>
+                    </ul>
+                </div>
+                <aside class="aside-note">
+                    <strong>补充策略</strong>
+                    <p>非官方普通 IP 房间的公开列表地址会使用占位值，并通过 <code>action=get</code> 返回真实连接信息。</p>
+                    <p style="margin-top: 10px;">玩家输入会清洗英文逗号、换行、制表符及不可见控制字符，减少对协议解析的干扰。</p>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-inner">
+            <div>BetterGameList · 为 Rusted Warfare 玩家提供更干净的公开列表源</div>
+            <div class="footer-links">
+                <a href="https://github.com/RELAY-CN/BetterGameList/blob/main/README.md">README</a>
+                <a href="https://github.com/RELAY-CN/BetterGameList/blob/main/Change.md">Change.md</a>
+                <a href="https://list.rw.der.kim/masterserver/1.4/interface">主 API</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const copyButtons = document.querySelectorAll("[data-copy]");
+
+        async function copyText(text, button) {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    const input = document.createElement("textarea");
+                    input.value = text;
+                    input.setAttribute("readonly", "");
+                    input.style.position = "absolute";
+                    input.style.left = "-9999px";
+                    document.body.appendChild(input);
+                    input.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(input);
+                }
+                const oldText = button.textContent;
+                button.textContent = "已复制";
+                window.setTimeout(() => {
+                    button.textContent = oldText;
+                }, 1400);
+            } catch (error) {
+                button.textContent = "复制失败";
+                console.error(error);
+            }
+        }
+
+        copyButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                copyText(button.dataset.copy || "", button);
+            });
+        });
+    </script>
+</body>
+</html>
